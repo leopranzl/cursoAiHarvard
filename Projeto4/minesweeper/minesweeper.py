@@ -127,7 +127,6 @@ class Sentence():
         if cell in self.cells:
             self.cells.remove(cell)
             self.count -= 1
-        raise NotImplementedError
 
     def mark_safe(self, cell):
         """
@@ -136,7 +135,6 @@ class Sentence():
         """
         if cell in self.cells:
             self.cells.remove(cell)
-        raise NotImplementedError
 
 
 class MinesweeperAI():
@@ -205,7 +203,7 @@ class MinesweeperAI():
 
         for k in range(beginning_height, ending_height):
             for n in range (beginning_width, ending_width):
-                if n >= 0 and n < self.width and k >= 0 and k <= self.height and (k, n) not in self.safes and cell != (k, n):
+                if n >= 0 and n < self.width and k >= 0 and k < self.height and (k, n) not in self.safes and cell != (k, n):
                     if (k, n) in self.mines:
                         count -= 1
                         continue
@@ -218,12 +216,12 @@ class MinesweeperAI():
             known_mines = s.known_mines()
             if known_mines:
                 for cell in known_mines:
-                    s.mark_mine(cell)
+                    self.mark_mine(cell)
                 
             known_safes = s.known_safes()
             if known_safes:
                 for cell in known_safes:
-                    s.mark_safe(cell)
+                    self.mark_safe(cell)
 
         new_sentences = []
         for s1 in self.knowledge:
@@ -232,11 +230,11 @@ class MinesweeperAI():
                     continue
 
                 if s1.cells.issubset(s2.cells):
-                    new_sentence = Sentence(s2 - s1, s2.count - s1.count)
+                    new_sentence = Sentence(s2.cells - s1.cells, s2.count - s1.count)
                     if new_sentence not in self.knowledge and new_sentence not in new_sentences:
                         new_sentences.append(new_sentence)
                 elif s2.cells.issubset(s1.cells):
-                    new_sentence = Sentence(s1 - s2, s1.count - s2.count)
+                    new_sentence = Sentence(s1.cells - s2.cells, s1.count - s2.count)
                     if new_sentence not in self.knowledge and new_sentence not in new_sentences:
                         new_sentences.append(new_sentence)
 
@@ -252,7 +250,6 @@ class MinesweeperAI():
             if safes:
                 for safe in safes:
                     self.mark_safe(safe)
-        raise NotImplementedError
 
     def make_safe_move(self):
         """
@@ -263,7 +260,7 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        safe_cells = self.safes.copy
+        safe_cells = self.safes.copy()
         for cell in safe_cells:
             if cell not in self.moves_made:
                 return cell
@@ -280,5 +277,5 @@ class MinesweeperAI():
         all_cells = set(itertools.product(range(self.height), range(self.width)))
         choices = (all_cells - self.moves_made - self.mines)
         if choices:
-            return random.choice(choices)
+            return random.choice(list(choices))
         return None
