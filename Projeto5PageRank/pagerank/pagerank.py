@@ -89,7 +89,28 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    #Calcular o modelo de transição da página atual: Chame a sua função transition_model para obter as probabilidades:
+    #Sortear a próxima página com base nas probabilidades do modelo: Para isso, use random.choices, que aceita pesos:
+    #Depois do loop, transformar os contadores em probabilidades: Divida cada contador por n:
+    cont = dict()
+    for page in corpus:
+        cont[page] = 0
+    
+    randomPage = random.choice(list(corpus.keys()))
+
+    for i in range(n):
+        cont[randomPage] += 1
+        model = transition_model(corpus, randomPage, damping_factor)
+        pages = list(model.keys())
+        probabilitiesOfTheRandomPage = list(model.values())
+        randomPage = random.choices(pages, probabilitiesOfTheRandomPage, k=1)[0]
+
+
+    pageRank = dict()
+    for page in corpus:
+        pageRank[page] = cont[page] / n 
+
+    return pageRank
 
 
 def iterate_pagerank(corpus, damping_factor):
