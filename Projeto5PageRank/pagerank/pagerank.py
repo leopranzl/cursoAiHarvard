@@ -72,10 +72,11 @@ def transition_model(corpus, page, damping_factor):
     probabilityOfEachPage = (damping_factor / numberOfLinks) + ((1 - damping_factor) / len(corpus))
     
     for p in corpus:
-        if p == page:
-            distribution[p] = (1 - damping_factor) / len(corpus)
+        if p in currentPageLinks:
+            distribution[p] = (damping_factor / numberOfLinks) + ((1 - damping_factor) / len(corpus))
         else:
-            distribution[p] = probabilityOfEachPage
+            distribution[p] = (1 - damping_factor) / len(corpus)
+
     return distribution
     #{"1.html": {"2.html", "3.html"}, "2.html": {"3.html"}, "3.html": {"2.html"}}
 
@@ -122,7 +123,39 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    
+    N = len(corpus)
+    constant = (1 - damping_factor) / N
+    pageRank = dict()
+    for page in corpus:
+        pageRank[page] = 1 / len(corpus)
+    converged = False
+    
+    while not converged:
+        new_rank = {}
+        
+        for page in corpus:
+            total = 0
+
+            for possible_page in corpus:
+                links = corpus[possible_page]
+
+                if not links:
+                    links = corpus.keys()
+
+                if page in links:
+                    total += pageRank[possible_page] / len(links)
+
+            new_rank[page] = constant + damping_factor * total
+                
+        converged = True
+        
+        for page in pageRank:
+            if abs(new_rank[page] - pageRank[page]) > 0.001:
+                converged = False
+        pageRank = new_rank
+            
+    return pageRank    
 
 
 if __name__ == "__main__":
